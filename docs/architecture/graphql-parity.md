@@ -23,12 +23,45 @@ it before writing either side.
 - **Deprecation gate:** remove a legacy path only once its manifest entry is
   green **and** its last caller is migrated.
 
+## Status: implemented (2026-08-17)
+
+The harness lives at **`app/tests/integration/graphql/`** and runs in the
+integration tier (`pnpm test:int`). Until it landed, the manifest was checked
+only by `app/src/graphql/schema.test.ts`, which asserts that each entry's root
+field *exists* in the schema — a name-existence guard that a resolver returning
+garbage would pass. Read that history before trusting an old green build: no
+authenticated GraphQL request had executed against a database at all.
+
+| File | What it does |
+|---|---|
+| `harness/parityRunner.ts` | The two sides, bound to one identity |
+| `harness/world.ts` | The fixture, built through real APIs only |
+| `harness/parityCases.ts` | `argsNote`/`shapeNotes` made executable, plus `PARITY_PENDING` |
+| `parity.int.test.ts` | The diff, plus the manifest-coverage guard |
+| `authBoundary.int.test.ts` | HTTP + bearer, and unauthenticated behavior |
+
+A second tier covers what in-process execution structurally cannot:
+**`app/tests/e2e/api/graphql-endpoint.spec.ts`** drives `/api/graphql` over
+real HTTP against a running server (`pnpm test:e2e`). It exists because the
+integration suite calls the route handler directly and therefore skips
+middleware — and middleware was silently breaking the endpoint. See "The proxy
+gate" below.
+
+**One deviation from the protocol below: the diff runs in-process, not over
+HTTP.** The integration tier exists so that importing and calling the real
+functions lets v8 record their coverage; firing HTTP at a dev server would
+instrument nothing (`app/tests/integration/README.md`). In-process is also the
+path the cutover actually takes — Server Components read through
+`executeGraphQL`, not by self-calling the route. The HTTP + bearer contract is
+covered separately in `authBoundary.int.test.ts`, asserting it resolves the
+same member the in-process path does, so the external contract stays honest.
+
 ## What the test session diffs
 
-Per the agreed decision, the harness does **GraphQL (HTTP) vs `/lib` imported
+Per the agreed decision, the harness does **GraphQL vs `/lib` imported
 directly** — no throwaway REST facades. For each operation in the manifest:
 
-1. Run the GraphQL `document` against `POST /api/graphql` with bearer auth.
+1. Run the GraphQL `document` (in-process; see the deviation above).
 2. Call the `/lib` `fn` directly per `argsNote`, with a client scoped to the
    **same user**.
 3. Assert equivalence, accounting for `shapeNotes`.
@@ -96,6 +129,49 @@ manifest."
 The authoritative, always-current list is the manifest itself
 (`app/src/graphql/parity/manifest.ts`) — a schema test guards it against drift.
 This table is the human-readable summary; update it per slice.
+
+## The proxy gate (fixed 2026-08-17)
+
+`src/proxy.ts` bounces any unauthenticated request that is not a public prefix
+to `/sign-in`, and its matcher excludes only `api/health`. `/api/graphql` was
+not on `PUBLIC_PREFIXES`, so over real HTTP:
+
+- anonymous requests got `307 → /sign-in?next=%2Fapi%2Fgraphql`, never reaching
+  a resolver;
+- **bearer requests got the same treatment** — the proxy reads cookies only, so
+  a token-bearing caller looks anonymous to it.
+
+That made the bearer contract this document specifies, and that
+`createClientWithToken` exists to serve, unusable end to end. Only
+cookie-bearing browser requests worked. Nothing caught it: the in-process
+suites bypass middleware, and no UI consumes the graph yet.
+
+The fix adds `/api/graphql` to `PUBLIC_PREFIXES` — not to the matcher
+exclusion, so browser callers keep their session-cookie refresh. It is safe
+because the endpoint authenticates itself (anonymous reads resolve to null,
+commands return `NOT_AVAILABLE`) and RLS is enforced by the user-scoped client,
+so the redirect was adding no protection while removing capability. The e2e
+spec pins all of it, including two guards that the exemption stays narrow.
+
+The general lesson for the cutover: **an in-process green build says nothing
+about the endpoint's reachability.** Anything that changes middleware, routing,
+or headers needs the e2e tier.
+
+## Two guards that keep the harness honest
+
+Both exist because a parity suite fails quietly in ways an ordinary suite does
+not — it can be green while proving nothing.
+
+- **Coverage.** Every manifest operation must have an executable case *or* an
+  entry in `PARITY_PENDING` with a written reason. A new slice cannot land
+  without saying what its parity story is, and a stale name in either map fails
+  too. `PARITY_PENDING` is the honest edge: anything listed there is covered by
+  the schema-shape guard and by nothing else.
+- **Anti-vacuity.** An empty result compares equal to an empty result. Each
+  case must produce something, or declare `allowEmpty` with the reason
+  emptiness is the correct answer. Without this, a case passes on a world where
+  the feature has no data — which is how most of the reads looked before the
+  fixture grew an announcement, a connection, and materialized notifications.
 
 ## Known shape conventions
 

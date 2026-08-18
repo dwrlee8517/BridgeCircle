@@ -28,6 +28,17 @@ export default defineConfig({
     // races. Isolation comes from per-run namespacing, not parallelism.
     fileParallelism: false,
     sequence: { concurrent: false },
+    // Pothos and execute.ts must share ONE `graphql` module instance: graphql
+    // ships both CJS and ESM, vitest externalizes them independently, and
+    // graphql's `instanceOf` guard rejects a schema built in the other realm
+    // ("Cannot use GraphQLSchema from another module or realm"). Inlining
+    // routes both through vite's transform pipeline, which resolves once.
+    // Next's bundler already dedupes in the app, so this is test-tier only.
+    server: {
+      deps: {
+        inline: [/^graphql$/, /^graphql\//, /@pothos\//, /graphql-yoga/, /@graphql-tools\//],
+      },
+    },
     // Real DB round-trips (provisioning does several writes + an auth call).
     testTimeout: 30_000,
     hookTimeout: 60_000,
@@ -56,6 +67,12 @@ export default defineConfig({
     },
   },
   resolve: {
+    // Pothos builds the schema with one `graphql` instance and execute.ts
+    // validates it with another unless the module is deduped: vitest resolves
+    // the transformed and externalized copies separately, and graphql's
+    // `instanceOf` check rejects a schema built in the other realm. Next's
+    // bundler dedupes for us in the app, so this is a test-tier concern only.
+    dedupe: ['graphql'],
     alias: {
       '@': path.resolve(__dirname, './src'),
       'server-only': path.resolve(__dirname, './src/test/server-only-shim.ts'),
