@@ -1,7 +1,7 @@
 ---
 id: graphql-data-plane/00-land-account-slice
 initiative: "[[Initiatives/graphql-data-plane/plan|GraphQL data plane]]"
-status: in-progress
+status: done
 depends_on: []
 pr: https://github.com/dwrlee8517/BridgeCircle/pull/217
 ---
@@ -48,4 +48,11 @@ gh pr view 217 --json state --jq .state   # MERGED
 
 ## Handoff notes
 
-*Filled in by the session that does this task.*
+- **What diverged from the plan:** nothing code-wise. The merge race cost ~4
+  update cycles; the branch finally went CLEAN after a quiet window and landed
+  2026-08-17. The Codex-connector "usage limit" review comment and the
+  coverage-report comment on the PR were both non-actionable noise.
+- **What the next task needs to know:** all member + account surfaces are now
+  on the graph (PRs #170–#217 inclusive). Tasks 01 (safety) and 05 (live
+  smoke) are both unblocked.
+- **Logged to `Backlog/`:** nothing new — the merge-race entry already exists.
