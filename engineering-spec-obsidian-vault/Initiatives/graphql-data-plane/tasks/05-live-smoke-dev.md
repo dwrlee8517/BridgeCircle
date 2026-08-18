@@ -14,11 +14,20 @@ Every slice so far is verified by tsc + schema tests + CI build — but **no
 authenticated GraphQL request has ever been executed against a real database**.
 The wiring is believed correct (the endpoint compiles through `next build`,
 and CI's Playwright boots the app), yet resolver-level mistakes (wrong arg
-mapping into an RPC, enum case slips) only surface on execution. Separately, a
-parity harness exists (`parity/` at repo root, `pnpm check:parity` is only the
-surface manifest; the integration tier lives in `app/tests/integration/`) —
-built by another session; read `app/tests/integration/README.md` first to
-avoid duplicating it.
+mapping into an RPC, enum case slips) only surface on execution.
+
+> **Correction (2026-08-17).** An earlier version of this note said a parity
+> harness already existed, built by another session, and pointed at `parity/`
+> at the repo root. That was a name collision, not a harness: `parity/` is the
+> **web ↔ mobile surface** manifest (`pnpm check:parity`), a different axis
+> entirely — its own README opens by warning against exactly this confusion.
+> No GraphQL parity harness existed. One has since been built at
+> `app/tests/integration/graphql/`, and it subsumes most of this task: it
+> executes authenticated queries against a real database and diffs them
+> against the repository layer. See `docs/architecture/graphql-parity.md`.
+>
+> What remains of *this* task is the **dev-target** run: the harness is proven
+> against local Supabase only.
 
 ## Scope
 

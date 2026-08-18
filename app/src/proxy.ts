@@ -8,7 +8,17 @@ import { type NextRequest, NextResponse } from 'next/server'
 // /demo is the hosted-dev demo door: it must be reachable unauthenticated to
 // issue its session, and it enforces its own fail-closed gate (404 unless
 // armed — see src/lib/demo/gate.ts). /demo/arm re-requires a session itself.
-const PUBLIC_PREFIXES = ['/sign-in', '/join', '/auth', '/reset-password', '/demo']
+// /api/graphql authenticates itself and must never be redirected: anonymous
+// reads resolve to null and commands return their NOT_AVAILABLE terminal
+// (src/graphql/context.ts), and RLS is enforced by the user-scoped client, so
+// a redirect adds no protection. It does remove capability — the proxy reads
+// cookies only, so an `Authorization: Bearer` caller looks anonymous to it and
+// was bounced to /sign-in before reaching a resolver, which made the bearer
+// contract `createClientWithToken` exists for unusable over HTTP. Listing it
+// here (rather than excluding it at the matcher) keeps the session-cookie
+// refresh that browser callers depend on.
+// Covered by tests/e2e/api/graphql-endpoint.spec.ts.
+const PUBLIC_PREFIXES = ['/sign-in', '/join', '/auth', '/reset-password', '/demo', '/api/graphql']
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next()
