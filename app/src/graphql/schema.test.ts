@@ -278,6 +278,37 @@ describe('graphql schema', () => {
     expect(String(respondFields?.connectionId?.type)).toBe('ID')
     expect(String(respondFields?.conversationId?.type)).toBe('ID')
   })
+
+  it('exposes the Notifications slice with a keyset connection and prefs', () => {
+    expect(sdl).toContain('type Notification')
+    expect(sdl).toContain('type NotificationConnection')
+    expect(sdl).toContain('type NotificationPreference')
+    expect(sdl).toContain('type CommunicationPreferences')
+    expect(sdl).toContain('type BlockedMember')
+
+    const q = schema.getQueryType()?.getFields() ?? {}
+    expect(String(q.notificationsConnection?.type)).toMatch(/^NotificationConnection!?$/)
+    expect((q.notificationsConnection?.args ?? []).map((a) => a.name)).toEqual(
+      expect.arrayContaining(['first', 'after', 'unreadOnly']),
+    )
+
+    // The type enum is derived from NOTIFICATION_TYPES — all 20 values, no drift.
+    const typeEnum = (
+      schema.getType('NotificationType') as { getValues?: () => { name: string }[] }
+    )
+      ?.getValues?.()
+      .map((v) => v.name)
+    expect(typeEnum).toHaveLength(20)
+    expect(typeEnum).toEqual(
+      expect.arrayContaining(['ASK_RECEIVED', 'MESSAGE_RECEIVED', 'EVENT_WAITLIST_SPOT_OPENED']),
+    )
+
+    const m = schema.getMutationType()?.getFields() ?? {}
+    expect(String(m.markNotificationsRead?.type)).toBe('MarkNotificationsReadPayload!')
+    expect(String(m.markAllNotificationsRead?.type)).toBe('MarkNotificationsReadPayload!')
+    expect(String(m.saveNotificationPreference?.type)).toBe('SavePreferenceStatus!')
+    expect(String(m.saveCommunicationPreferences?.type)).toBe('SaveCommunicationStatus!')
+  })
 })
 
 // Guard against manifest drift: every operation the parity harness expects must

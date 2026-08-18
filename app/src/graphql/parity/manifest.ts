@@ -520,4 +520,75 @@ export const PARITY_MANIFEST: ParityOperation[] = [
     shapeNotes:
       'Idempotent: DISCONNECTED on the first call, UNCHANGED when not connected (incl. replay). After disconnecting, cross-check the conversation flips to CONNECTION_REQUIRED read-only and peopleSearch(scope: IN_CIRCLE) drops the member.',
   },
+  {
+    feature: 'notifications',
+    kind: 'query',
+    name: 'notificationsConnection',
+    document: `query ($first: Int, $after: String, $unreadOnly: Boolean) { notificationsConnection(first: $first, after: $after, unreadOnly: $unreadOnly) { edges { cursor node { id type readAt createdAt payloadJson } } pageInfo { hasNextPage endCursor } } }`,
+    variables: { first: 30, unreadOnly: false },
+    lib: {
+      module: '@/db/repositories/notifications',
+      fn: 'createNotificationRepository(db).list',
+      argsNote:
+        'after decodes via lib/pagination/keyset to (createdAt, id) → list({ beforeCreatedAt, beforeId: Number(id), limit: min(first+1, 100), unreadOnly }). Newest-first; "after" pages into OLDER rows.',
+    },
+    shapeNotes:
+      'TRUE keyset connection, forward-only (the RPC has before-args only). Node fields are the camelCase NotificationRow; type uppercased against the 20-value NotificationType enum (derived from NOTIFICATION_TYPES, so it cannot drift). payload is exposed as payloadJson = JSON.stringify(payload) — parse before diffing. Rows with unknown types are dropped by the repo parser on BOTH sides, so counts still match.',
+  },
+  {
+    feature: 'notifications',
+    kind: 'mutation',
+    name: 'markNotificationsRead',
+    document: `mutation ($notificationIds: [Int!]!) { markNotificationsRead(notificationIds: $notificationIds) { count } }`,
+    variables: { notificationIds: [1, 2, 3] },
+    lib: {
+      module: '@/db/repositories/notifications',
+      fn: 'createNotificationRepository(db).markRead',
+      argsNote: 'markRead(notificationIds) → count of rows that actually flipped.',
+    },
+    shapeNotes:
+      'count excludes already-read ids — replay returns 0, not an error. Empty array short-circuits to 0 without an RPC call (repo behavior). Cross-check readAt flips on the bell query.',
+  },
+  {
+    feature: 'notifications',
+    kind: 'mutation',
+    name: 'markAllNotificationsRead',
+    document: `mutation ($before: String!) { markAllNotificationsRead(before: $before) { count } }`,
+    variables: { before: '<iso-timestamp, typically newest visible createdAt>' },
+    lib: {
+      module: '@/db/repositories/notifications',
+      fn: 'createNotificationRepository(db).markAllRead',
+      argsNote: 'markAllRead(before) → count.',
+    },
+    shapeNotes:
+      'Bounded by `before` so a race with brand-new notifications never marks something the member has not seen. Idempotent (second call → 0).',
+  },
+  {
+    feature: 'settings',
+    kind: 'query',
+    name: 'notificationPreferences',
+    document: `query { notificationPreferences { type inAppEnabled emailEnabled updatedAt } }`,
+    lib: {
+      module: '@/db/repositories/settings',
+      fn: 'createSettingsRepository(db).listNotificationPreferences',
+      argsNote: 'listNotificationPreferences() — user-scoped RPC, no args.',
+    },
+    shapeNotes:
+      'Field-for-field; type uppercased. Also diff communicationPreferences ↔ getCommunicationPreferences() and blockedMembers ↔ listBlockedMembers() the same way (single-object/list 1:1 mappings, all under the settings feature).',
+  },
+  {
+    feature: 'settings',
+    kind: 'mutation',
+    name: 'saveNotificationPreference',
+    document: `mutation ($type: NotificationType!, $inAppEnabled: Boolean!, $emailEnabled: Boolean!) { saveNotificationPreference(type: $type, inAppEnabled: $inAppEnabled, emailEnabled: $emailEnabled) }`,
+    variables: { type: 'ASK_RECEIVED', inAppEnabled: true, emailEnabled: false },
+    lib: {
+      module: '@/db/repositories/settings',
+      fn: 'createSettingsRepository(db).saveNotificationPreference',
+      argsNote:
+        'saveNotificationPreference(type.toLowerCase(), inAppEnabled, emailEnabled). GraphQL pre-validates the lowered value with isNotificationType before the RPC.',
+    },
+    shapeNotes:
+      'Returns a bare enum (SAVED | INVALID_TYPE | NOT_AVAILABLE). saveCommunicationPreferences(schoolNewsletterEmailEnabled) is the sibling command (SAVED | NOT_AVAILABLE). Cross-check the corresponding query reflects the write.',
+  },
 ]
