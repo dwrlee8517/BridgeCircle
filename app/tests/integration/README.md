@@ -123,6 +123,25 @@ Drive actions through `harness/apiClient.ts` so a `CookieJar` is bound (real
 session cookies) and Next's `redirect()` / `notFound()` are normalized into an
 outcome. One `CookieJar` == one signed-in identity.
 
+## The GraphQL parity suite
+
+`tests/integration/graphql/` is a distinct kind of test in this tier. The rest
+of the suite asserts that an API does the right thing; parity asserts that
+**two APIs do the same thing** — every operation in
+`src/graphql/parity/manifest.ts` run both through the graph and through the
+`db/repositories` function it delegates to, as the same user, and diffed.
+
+It follows this tier's rules (real APIs only, in-process for coverage, one
+`SeedScope` per file) with two additions specific to proving equivalence:
+
+- Every manifest operation needs an executable case or a written
+  `PARITY_PENDING` reason — a new slice cannot land silently uncovered.
+- Every case must return something. Empty equals empty, so a case with no data
+  proves nothing; say `allowEmpty` with a reason when emptiness is correct.
+
+Protocol and the in-process-vs-HTTP deviation:
+[`docs/architecture/graphql-parity.md`](../../../docs/architecture/graphql-parity.md).
+
 ## Env
 
 `run-local.sh` supplies these from `supabase status`; the dev target reads them
