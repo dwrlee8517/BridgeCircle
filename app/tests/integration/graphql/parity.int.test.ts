@@ -1,4 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { getMemberContext } from '@/db/repositories/member-context'
+import { createNotificationRepository } from '@/db/repositories/notifications'
+import { createPeopleRepository } from '@/db/repositories/people'
+import type { PeopleScope } from '@/lib/people/contracts'
 import { PARITY_MANIFEST } from '@/graphql/parity/manifest'
 import { teardownScope } from '../harness/resetDb'
 import { SeedScope } from '../harness/seedScope'
@@ -28,6 +32,10 @@ afterAll(async () => {
 })
 
 const key = (op: { kind: string; name: string }) => `${op.kind}:${op.name}`
+
+// biome-ignore lint/suspicious/noExplicitAny: narrowing untyped GraphQL data.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Any = any
 
 /** Empty equals empty, so a case that returns nothing has tested nothing. */
 function isSubstantive(value: unknown): boolean {
@@ -71,6 +79,106 @@ describe('manifest coverage', () => {
         `(${Object.keys(PARITY_PENDING).length} pending)\n`,
     )
     expect(executed.length).toBeGreaterThan(0)
+  })
+})
+
+/**
+ * Resolver argument defaults, which manifest-driven parity cannot reach.
+ *
+ * Every manifest document pins its variables, so `args.scope ?? 'all'` and
+ * `args.unreadOnly ?? false` are dead code in that suite — mutating either
+ * default leaves it green. These cases omit exactly one variable at a time and
+ * pin the default the repository side is called with.
+ *
+ * Each test asserts its own discriminator first. A default is only observable
+ * if the world can tell the two values apart; without that check these would
+ * pass on a world where `all` and `circle` happen to return the same people,
+ * which is precisely the state the fixture used to be in.
+ */
+describe('resolver argument defaults', () => {
+  const NO_FILTERS = {
+    industry: null,
+    classYearStart: null,
+    classYearEnd: null,
+    location: null,
+    employer: null,
+    education: null,
+    topic: null,
+  }
+
+  it('peopleSearch defaults scope to ALL when the argument is omitted', async () => {
+    const jar = world.viewer.jar
+    const membershipId = world.viewerMembershipId
+    const document = PARITY_MANIFEST.find((op) => op.name === 'peopleSearch')?.document as string
+
+    const search = (scope: PeopleScope) =>
+      repositoryAs(jar, (db) =>
+        createPeopleRepository(db).list({
+          membershipId,
+          query: null,
+          scope,
+          filters: NO_FILTERS,
+          queryEmbedding: null,
+          limit: 25,
+        }),
+      )
+
+    // Discriminator: `stranger` is in the org but not in the viewer's circle,
+    // so `all` and `in_circle` must disagree or this test proves nothing.
+    const [all, circle] = await Promise.all([search('all'), search('in_circle')])
+    expect(
+      all.items.length,
+      'all and in_circle returned the same people — the default under test is unobservable',
+    ).toBeGreaterThan(circle.items.length)
+
+    // `scope` omitted on purpose; `first` pinned so only one default is in play.
+    const data = await graphqlAs<Record<string, Any>>(jar, document, { first: 25 })
+    const ids = (value: { items: { membershipId: string }[] }) =>
+      value.items.map((item) => item.membershipId)
+
+    expect(ids(data.peopleSearch)).toEqual(ids(all))
+  })
+
+  it('notificationsConnection defaults unreadOnly to false when omitted', async () => {
+    const jar = world.viewer.jar
+    const document = PARITY_MANIFEST.find((op) => op.name === 'notificationsConnection')
+      ?.document as string
+
+    const list = (unreadOnly: boolean) =>
+      repositoryAs(jar, (db) => createNotificationRepository(db).list({ limit: 30, unreadOnly }))
+
+    // Discriminator: one notification is read, so the filter must change the set.
+    const [everything, unread] = await Promise.all([list(false), list(true)])
+    expect(
+      everything.length,
+      'no read notification in the world — the unreadOnly default is unobservable',
+    ).toBeGreaterThan(unread.length)
+    expect(everything.map((row) => row.id)).toContain(world.readNotificationId)
+
+    // `unreadOnly` omitted on purpose.
+    const data = await graphqlAs<Record<string, Any>>(jar, document, { first: 30 })
+    const ids = data.notificationsConnection.edges.map((edge: Any) => edge.node.id)
+
+    expect(ids).toEqual(everything.map((row) => row.id))
+  })
+
+  it('me picks the same membership as the repository for a two-organization member', async () => {
+    const jar = world.multiOrgMember.jar
+
+    const context = await repositoryAs(jar, (db) => getMemberContext(db))
+
+    // Discriminator: with one membership, "selected" and "first" are the same
+    // row and a wrong pick is invisible.
+    const active = context.memberships.filter((m) => m.status === 'active')
+    expect(active.length, 'multiOrgMember is not in two organizations').toBeGreaterThan(1)
+
+    const expected =
+      context.memberships.find((m) => m.membershipId === context.selectedMembershipId) ??
+      context.memberships[0]
+
+    const data = await graphqlAs<{ me: { id: string } | null }>(jar, 'query { me { id } }')
+
+    expect(data.me?.id).toBe(expected?.membershipId)
   })
 })
 

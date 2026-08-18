@@ -1,15 +1,19 @@
 import { randomUUID } from 'node:crypto'
 import { createAnnouncementAction } from '@/app/(admin)/admin/announcements/actions'
 import { saveHelpPreferencesAction } from '@/app/(member)/help/help-preferences-actions'
-import { POST as connectionRequestRoute } from '@/app/api/connections/requests/route'
-import { POST as connectionResponseRoute } from '@/app/api/connections/requests/[requestId]/response/route'
-import { POST as circleAskRoute } from '@/app/api/help/asks/circle/route'
+import { markNotificationReadAction } from '@/app/(member)/notifications-actions'
 import { saveNotificationGroupAction } from '@/app/(member)/settings/actions'
+import { POST as connectionResponseRoute } from '@/app/api/connections/requests/[requestId]/response/route'
+import { POST as connectionRequestRoute } from '@/app/api/connections/requests/route'
+import { POST as circleAskRoute } from '@/app/api/help/asks/circle/route'
 import { createAdminClient } from '@/db/admin'
 import { createHelpWorkerRepository } from '@/db/repositories/help-worker'
+import { createInviteAcceptanceRepository } from '@/db/repositories/invites'
 import { getMemberContext } from '@/db/repositories/member-context'
+import { createNotificationRepository } from '@/db/repositories/notifications'
 import { createOutboxRepository } from '@/db/repositories/outbox'
-import { callAction, callRoute, createMember, type Member } from '../../harness/apiClient'
+import { acceptInvite } from '@/lib/invite/accept'
+import { callAction, createMember, invite, callRoute, type Member } from '../../harness/apiClient'
 import { bootstrapTenant, TEST_PASSWORD, type Tenant } from '../../harness/bootstrapTenant'
 import type { SeedScope } from '../../harness/seedScope'
 import { repositoryAs } from './parityRunner'
@@ -22,17 +26,41 @@ import { repositoryAs } from './parityRunner'
  * through its route handler. Nothing is seeded by raw DB write, so what the
  * graph and the repositories read is state the product itself created.
  *
- * Two members, because parity on a single-member org would pass trivially —
- * `peopleSearch` and `memberProfile` need someone to find.
+ * The cast is shaped by what a diff can *distinguish*, not by what is
+ * convenient. Mutation-testing the resolvers showed a world can be rich enough
+ * to pass every case and still be blind:
+ *
+ * - `other` is connected to the viewer, so a scope of `all` and a scope of
+ *   `circle` return the same people. `stranger` exists to separate them.
+ * - Every notification was unread, so `unreadOnly: true` and `false` returned
+ *   the same rows. One of the viewer's is now read.
+ * - Every member had exactly one membership, so "the selected one" and "the
+ *   first one" were the same row. `multiOrgMember` belongs to two.
+ *
+ * Each of those is a resolver bug the suite could not have caught.
  */
 export type ParityWorld = {
   tenant: Tenant
   viewer: Member
   other: Member
+  /** In the org but unconnected to the viewer: separates `all` from `circle`. */
+  stranger: Member
+  /**
+   * Two active memberships in two organizations.
+   *
+   * With more than one active membership and no preference supplied, the
+   * `get_my_member_context` RPC leaves `selected_membership_id` null and sets
+   * `requires_circle_choice` — so "selected" and "first" stop being the same
+   * row, which is what makes a wrong pick detectable.
+   */
+  multiOrgMember: Member
+  secondTenant: Tenant
   viewerMembershipId: string
   otherMembershipId: string
   /** A circle ask opened by the viewer, so ask-shaped reads have a subject. */
   askId: string
+  /** The viewer notification marked read, so unread filtering is observable. */
+  readNotificationId: number
 }
 
 async function membershipIdOf(member: Member): Promise<string> {
@@ -54,6 +82,12 @@ export async function buildParityWorld(scope: SeedScope): Promise<ParityWorld> {
   const other = await createMember(tenant.admin.jar, scope.email('other'), TEST_PASSWORD, {
     fullName: 'Parity Other',
     graduationYear: 2016,
+  })
+  // Same organization, deliberately never connected to the viewer, so a scope
+  // of `all` returns strictly more than a scope of `circle`.
+  const stranger = await createMember(tenant.admin.jar, scope.email('stranger'), TEST_PASSWORD, {
+    fullName: 'Parity Stranger',
+    graduationYear: 2011,
   })
 
   // The other member opts into helping, so they surface in helper-aware reads
@@ -130,14 +164,73 @@ export async function buildParityWorld(scope: SeedScope): Promise<ParityWorld> {
 
   await materializePendingNotifications([viewer.userId, other.userId])
 
+  // One notification read, so `unreadOnly` actually filters something. Driven
+  // through the real action rather than the graph's own markNotificationsRead
+  // mutation — world-building must never use the thing under test.
+  const readNotificationId = await markOneNotificationRead(viewer)
+
+  // A member of two organizations. Built the way the product builds one: the
+  // second tenant's admin invites an address that already has an account, and
+  // the invite is accepted against the existing session. `signUpWithPassword`
+  // refuses a known email ("Sign in on the sign-in page instead"), so the real
+  // path for an existing user is /auth/callback, which calls this same
+  // `acceptInvite` after exchanging the OAuth code. Only the code exchange is
+  // skipped here — auth transport, not membership logic.
+  const secondTenant = await bootstrapTenant(scope, { adminName: 'IT Admin Two' })
+  const multiOrgMember = await createMember(
+    tenant.admin.jar,
+    scope.email('multiorg'),
+    TEST_PASSWORD,
+    { fullName: 'Parity MultiOrg', graduationYear: 2009 },
+  )
+  const secondInvite = await invite(secondTenant.admin.jar, {
+    email: multiOrgMember.email,
+    fullName: 'Parity MultiOrg',
+  })
+  if (!secondInvite.token) {
+    throw new Error(`no second-org invite token for ${multiOrgMember.email}`)
+  }
+  const accepted = await repositoryAs(multiOrgMember.jar, (db) =>
+    acceptInvite(secondInvite.token as string, createInviteAcceptanceRepository(db)),
+  )
+  if (!accepted.ok) {
+    throw new Error(`second-org invite not accepted: ${JSON.stringify(accepted)}`)
+  }
+
   return {
     tenant,
     viewer,
     other,
+    stranger,
+    multiOrgMember,
+    secondTenant,
     viewerMembershipId: await membershipIdOf(viewer),
     otherMembershipId: await membershipIdOf(other),
     askId,
+    readNotificationId,
   }
+}
+
+/**
+ * Mark the viewer's oldest notification read and return its id.
+ *
+ * Reads the list through the repository to pick a subject, then marks it via
+ * the real server action — the same pair a member's own click drives.
+ */
+async function markOneNotificationRead(viewer: Member): Promise<number> {
+  const rows = await repositoryAs(viewer.jar, (db) =>
+    createNotificationRepository(db).list({ limit: 30, unreadOnly: true }),
+  )
+  const target = rows.at(-1)
+  if (!target) throw new Error('no unread notification to mark read')
+
+  const form = new FormData()
+  form.set('notificationId', String(target.id))
+  const marked = await callAction(viewer.jar, () => markNotificationReadAction(form))
+  if (marked.kind !== 'return' || !marked.value.ok) {
+    throw new Error(`could not mark notification read: ${JSON.stringify(marked)}`)
+  }
+  return target.id
 }
 
 /**
