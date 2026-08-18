@@ -3,7 +3,7 @@
 **Status:** Prototype (not yet built) · draft 2026-08-03
 **Scope:** invite/QR entry → signup + LinkedIn → locked first look → opening day
 **Pilot context:** Chadwick School (English-only). Bilingual/Korean pre-onboarding surfaces are deferred — see [Open Questions](#open-questions).
-**Reach:** Scoped as a **Chadwick special-pilot launch mechanism**, not a standing capability every org inherits — see [Pilot-specific by intent](#pilot-specific-by-intent).
+**Reach:** A **standing pre-onboarding feature**, not a one-off launch hack. Chadwick is the first org through it and the source of the illustrative copy; the mechanism is built to serve any org — see [A general feature, opinionated defaults](#a-general-feature-opinionated-defaults).
 **Related:** [[spec]] · [[user-flows]] (Flow M1) · [[launch-cut]] · [[North Star and Long-Horizon Roadmap]]
 
 ---
@@ -65,15 +65,16 @@ A member who completes signup is **reserved**: their spot is held, their profile
 
 ---
 
-## Pilot-specific by intent
+## A general feature, opinionated defaults
 
-This whole mechanism — the locked first look, the reserved hold, the admin-triggered opening day — is scoped as a **bespoke Chadwick pilot launch treatment**, not a standing capability every future org automatically gets. That is a deliberate choice, and it *narrows* the build:
+This is a **standing pre-onboarding capability** any org can turn on — the locked first look, the reserved hold, and the opening day are general primitives, not a Chadwick one-off. But "general" is not "infinitely configurable." The build stays disciplined by shipping one strong default path and adding configuration only where orgs genuinely differ ([[spec]] — single-engineer discipline; cut speculative scope, not polish).
 
-- **Build for one org, well.** No multi-org configuration surface, no per-org toggle for "does this org use a locked launch," no self-serve setup. Chadwick's launch is coordinated by hand with the admin.
-- **Don't generalize prematurely.** Threshold-auto-open, scheduled-date-open, and reusable launch-campaign tooling are explicitly *not* in scope. The pilot's job is to prove the cold-start bet is real before we invest in generalizing it.
-- **Graduation criterion.** If the pilot shows the locked-gather-then-open pattern measurably beats trickle-in admission (see [Analytics](#analytics--the-pre-onboarding-funnel) — opening-day activation), *then* a follow-on spec generalizes it into a standing capability. Until then, treat any generalization work as speculative scope to cut ([[spec]] — single-engineer discipline).
+- **Per-org, but off by default.** A pre-onboarding gate is an org-level setting (working name: `pre_onboarding_mode`). Orgs that don't need a coordinated launch keep today's behavior — signup flows straight through to onboarding, no gate. Turning it on is what puts new signups into the [reserved](#membership-state-model) hold.
+- **One trigger to start: admin-triggered opening day.** The default and only Phase-1 trigger is the human "Open the circle" action. Threshold- and date-auto-open are real roadmap options now (not "never"), but they layer on top of the same `reserved → active` release path and ship only once the manual version is proven. See [Opening day](#opening-day).
+- **Chadwick is the reference implementation.** All copy in this spec is Chadwick-illustrative and English-only. A second org would reuse the same surfaces with its own name and roster; nothing here is hard-coded to one school. Bilingual orgs still gate on the [Korean-copy open question](#open-questions).
+- **What we still don't build yet.** Self-serve org setup for the gate, reusable multi-org launch-campaign tooling, and per-org theming of the first look are out of scope until there's demand. General ≠ gold-plated.
 
-Practically: it is fine for the `reserved` status, the reservation token, and the "Open the circle" control to exist in the schema and codebase as general primitives — that costs little and keeps them clean. What we avoid is the *product surface* of making this a configurable, self-serve, every-org feature before one real launch has earned it.
+The line to hold: build the mechanism *once, cleanly, for any org*, driven by a single org-level mode flag and sensible defaults — not a configuration console.
 
 ---
 
@@ -161,12 +162,12 @@ Voice notes: reason-first (why it's locked), honest (names the real reason — c
 
 ## Opening day
 
-### Trigger (pilot: admin-triggered)
+### Trigger (Phase 1: admin-triggered)
 
-For the first pilot, **the admin opens the circle.** A single control ("Open the circle") in the admin dashboard releases the entire reserved cohort at once. The admin is the human who judges when the directory is alive enough — this is the coordinator's call, not a threshold an algorithm trips.
+**The admin opens the circle.** A single control ("Open the circle") in the admin dashboard releases the entire reserved cohort at once. The admin is the human who judges when the directory is alive enough — this is the coordinator's call, not a threshold an algorithm trips.
 
-- **Recommended default: admin-triggered**, optionally paired with a soft opening *date* communicated to members ("We expect to open the week of…"). Simplest, most controllable, most human for a 500–1000-invite pilot.
-- **Deferred alternatives** (don't build for the pilot): auto-open at a member-count threshold; auto-open on a scheduled date. Both remove the human judgment that makes the pilot safe, and both are generalization work that the [pilot-specific scope](#pilot-specific-by-intent) explicitly defers until the pattern is proven.
+- **Default and only Phase-1 trigger: admin-triggered**, optionally paired with a soft opening *date* communicated to members ("We expect to open the week of…"). Simplest, most controllable, most human — and the right first mode for any org.
+- **Roadmap triggers** (build after the manual version is proven): auto-open at a member-count threshold; auto-open on a scheduled date. Both layer on top of the same `reserved → active` release path — they change *what fires* the release, not *what the release does* — so they add cleanly later without reworking the core.
 
 ### What happens on release
 
@@ -278,11 +279,11 @@ Admin-facing framing follows the [admin voice register](../../docs/product/voice
 
 ## Open questions
 
-1. **Does this generalize past Chadwick at all?** This is scoped as a [Chadwick-only pilot mechanism](#pilot-specific-by-intent). The open question is not *how* to configure it for many orgs, but *whether* the pilot earns generalization in the first place — and if it does, whether later orgs even want a locked launch or just trickle-in. Answer with the pilot's opening-day-activation numbers before designing any multi-org surface.
+1. **Which trigger modes past admin-triggered, and when?** Admin-triggered ships first for every org ([Opening day](#opening-day)). Threshold- and date-auto-open are on the roadmap — the open question is sequencing and per-org config: does an org pick one mode, or can it combine them (e.g. "open on this date, or when 200 have joined, whichever comes first")? Answer with real usage before building the second mode.
 2. **Bilingual pre-onboarding.** Chadwick International is bilingual. The invite email, first look, and opening-day email will need Korean surfaces — but machine translation is forbidden ([voice §17](../../docs/product/voice-guidelines.md)). Needs a native co-writer before any bilingual pilot. Out of scope for this English-only draft; do not ship Korean pre-onboarding copy from this spec.
 3. **Mixed student / adult-alumni register.** The [voice open question on mixed-audience onboarding](../../docs/product/voice-guidelines.md#17-open-questions) applies squarely to the first look, which both students and established alumni will see pre-launch. Does the embarrassed-asker default need a younger-reader variant here?
 4. **"Circle gathering" counts when the number is genuinely tiny.** At 3 joined, is the honest count still motivating, or does it undercut anticipation? Honesty is non-negotiable ([voice §5.4](../../docs/product/voice-guidelines.md)) — the question is whether to *lead* with the count or with the member's own card when the cohort is very small.
-5. **Withdraw vs. defer.** Is an explicit `withdrawn` state worth building for the pilot, or is silent inaction (never sign up) sufficient? Leans defer.
+5. **Withdraw vs. defer.** Is an explicit `withdrawn` state worth building in v1, or is silent inaction (never sign up) sufficient? Leans defer.
 6. **QR roster-matching signal.** Email is the cleanest roster key. Is name + graduation year a safe enough secondary match for QR entrants who don't recall which email the school used, or does that widen the trust surface too far?
 
 ---
