@@ -1,4 +1,5 @@
 import { builder } from './builder'
+import './entities/account'
 import './entities/connections'
 import './entities/conversations'
 import './entities/help'

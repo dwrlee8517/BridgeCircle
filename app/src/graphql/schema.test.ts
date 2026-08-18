@@ -309,6 +309,41 @@ describe('graphql schema', () => {
     expect(String(m.saveNotificationPreference?.type)).toBe('SavePreferenceStatus!')
     expect(String(m.saveCommunicationPreferences?.type)).toBe('SaveCommunicationStatus!')
   })
+
+  it('exposes the Account lifecycle slice', () => {
+    expect(sdl).toContain('type AccountStatus')
+    expect(sdl).toContain('type AccountExport')
+    expect(sdl).toContain('enum AccountState')
+    expect(sdl).toContain('enum AccountExportStatus')
+
+    const q = schema.getQueryType()?.getFields() ?? {}
+    expect(String(q.accountStatus?.type)).toBe('AccountStatus')
+    expect(String(q.accountExport?.type)).toBe('AccountExport')
+    // The download is a signed URL string — bucket/path never cross the graph.
+    expect(String(q.accountExportDownloadUrl?.type)).toBe('String')
+    expect(sdl).not.toContain('storageBucket')
+    expect(sdl).not.toContain('storagePath')
+
+    const m = schema.getMutationType()?.getFields() ?? {}
+    expect(String(m.scheduleAccountDeletion?.type)).toBe('ScheduleDeletionPayload!')
+    expect(String(m.cancelAccountDeletion?.type)).toBe('CancelDeletionPayload!')
+    expect(String(m.requestAccountExport?.type)).toBe('AccountExport')
+    expect(String(m.changeAccountEmail?.type)).toBe('ChangeEmailStatus!')
+
+    // The export request keeps the house idempotency-key convention.
+    const key = (m.requestAccountExport?.args ?? []).find((a) => a.name === 'clientRequestId')
+    expect(String(key?.type)).toBe('String!')
+
+    // TOO_LATE (worker already finalized) is a first-class outcome.
+    const cancelStatus = (
+      schema.getType('CancelDeletionStatus') as { getValues?: () => { name: string }[] }
+    )
+      ?.getValues?.()
+      .map((v) => v.name)
+    expect(cancelStatus).toEqual(
+      expect.arrayContaining(['CANCELLED', 'ACTIVE', 'TOO_LATE', 'NOT_AVAILABLE']),
+    )
+  })
 })
 
 // Guard against manifest drift: every operation the parity harness expects must

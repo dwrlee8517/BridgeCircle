@@ -591,4 +591,59 @@ export const PARITY_MANIFEST: ParityOperation[] = [
     shapeNotes:
       'Returns a bare enum (SAVED | INVALID_TYPE | NOT_AVAILABLE). saveCommunicationPreferences(schoolNewsletterEmailEnabled) is the sibling command (SAVED | NOT_AVAILABLE). Cross-check the corresponding query reflects the write.',
   },
+  {
+    feature: 'account',
+    kind: 'query',
+    name: 'accountStatus',
+    document: `query { accountStatus { accountState deleteScheduledFor deleteInitiatedByAdmin } }`,
+    lib: {
+      module: '@/db/repositories/member-context',
+      fn: 'getMemberContext',
+      argsNote:
+        'getMemberContext(db) → { accountState, deleteScheduledFor, deleteInitiatedByAdmin } (the shell context fields). accountState uppercased.',
+    },
+    shapeNotes:
+      'Also covers accountExport ↔ createSettingsRepository(db).getExport() (status uppercased: QUEUED|PROCESSING|READY|FAILED|EXPIRED) and accountExportDownloadUrl ↔ createAccountExportDownload(repo, storage) — a SIGNED URL; assert non-null only when an export is READY and unexpired, and never diff the URL itself (it is time-limited), just its presence and that it fetches 200.',
+  },
+  {
+    feature: 'account',
+    kind: 'mutation',
+    name: 'scheduleAccountDeletion',
+    document: `mutation { scheduleAccountDeletion { status deleteScheduledFor } }`,
+    lib: {
+      module: '@/db/repositories/settings',
+      fn: 'createSettingsRepository(db).scheduleDeletion',
+      argsNote: 'scheduleDeletion() — no args; user-scoped.',
+    },
+    shapeNotes:
+      'SIDE-EFFECTING + HIGH-STAKES: schedules a grace-period deletion (not immediate). status = result_code uppercased (SCHEDULED | NOT_AVAILABLE); SCHEDULED carries deleteScheduledFor. Cross-check accountStatus flips to DELETION_SCHEDULED. Test on a dedicated seeded user and cancel afterward.',
+  },
+  {
+    feature: 'account',
+    kind: 'mutation',
+    name: 'cancelAccountDeletion',
+    document: `mutation { cancelAccountDeletion { status accountState } }`,
+    lib: {
+      module: '@/db/repositories/settings',
+      fn: 'createSettingsRepository(db).cancelDeletion',
+      argsNote: 'cancelDeletion() — no args.',
+    },
+    shapeNotes:
+      'CANCELLED restores ACTIVE; ACTIVE means nothing was scheduled (idempotent-ish replay); TOO_LATE once the worker finalized — all first-class outcomes, not errors.',
+  },
+  {
+    feature: 'account',
+    kind: 'mutation',
+    name: 'requestAccountExport',
+    document: `mutation ($clientRequestId: String!) { requestAccountExport(clientRequestId: $clientRequestId) { id status createdAt expiresAt } }`,
+    variables: { clientRequestId: '<uuid-v4, REUSE across retries>' },
+    lib: {
+      module: '@/db/repositories/settings',
+      fn: 'createSettingsRepository(db).requestExport',
+      argsNote:
+        'requestExport(clientRequestId). NOTE: the web settings action generates the id server-side per click (operations.requestAccountExport with makeId); GraphQL takes it as the client idempotency key per house convention — replaying returns the same job.',
+    },
+    shapeNotes:
+      'Returns the export job (initially QUEUED); the outbox worker advances it. changeAccountEmail(email) is the sibling command (CHANGED | FAILED | NOT_AVAILABLE) — CHANGED means Supabase Auth accepted the request and sends the confirmation flow, not that the email is live; test only against a disposable auth user.',
+  },
 ]
