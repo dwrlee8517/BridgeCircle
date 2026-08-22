@@ -28,6 +28,10 @@ export default async function AdminEventsPage() {
   const availableEvents = events ?? []
   const upcoming = availableEvents.filter((event) => new Date(event.startsAt).getTime() >= now)
   const past = availableEvents.filter((event) => new Date(event.startsAt).getTime() < now)
+  const categoryOptions = [...new Set(availableEvents.map((event) => event.category))]
+  const hostOptions = [
+    ...new Set(availableEvents.flatMap((event) => (event.hostName ? [event.hostName] : []))),
+  ]
 
   return (
     <AdminPage title="Events" description="Create and manage what members see on the School page.">
@@ -39,7 +43,7 @@ export default async function AdminEventsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <EventForm />
+          <EventForm categoryOptions={categoryOptions} hostOptions={hostOptions} />
         </CardContent>
       </Card>
 

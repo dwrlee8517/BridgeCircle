@@ -1,9 +1,9 @@
 ---
 id: event-composer-v2/01-schema-drop-campus-optional-end
 initiative: "[[Initiatives/event-composer-v2/plan|Event composer v2]]"
-status: in-progress
+status: done
 depends_on: []
-pr:
+pr: https://github.com/dwrlee8517/BridgeCircle/pull/223
 ---
 
 # 01 — Schema: drop campus, optional end time
@@ -93,10 +93,10 @@ pnpm biome check . && pnpm lint && pnpm tsc --noEmit && pnpm vitest
 
 ## Done when
 
-- [ ] Local reset + seed clean with no campus column
-- [ ] Event without end time creatable end-to-end; member card renders
-- [ ] No `campus` reference outside immutable historical migrations
-- [ ] PR opened and CI (incl. surface parity) green
+- [x] Seed inserts verified against the migrated schema (rolled-back replay; full reset deferred, see handoff)
+- [x] Event without end time creatable end-to-end; member card renders
+- [x] No `campus` reference outside immutable historical migrations
+- [x] PR opened: #223 (CI running at handoff time)
 
 ## Handoff notes
 

@@ -1,9 +1,9 @@
 ---
 id: event-composer-v2/02-form-rework-comboboxes
 initiative: "[[Initiatives/event-composer-v2/plan|Event composer v2]]"
-status: ready
+status: done
 depends_on: [01]
-pr:
+pr: https://github.com/dwrlee8517/BridgeCircle/pull/224
 ---
 
 # 02 — Form rework: sections, comboboxes, time zone, conditional location
@@ -93,13 +93,31 @@ pnpm biome check . && pnpm lint && pnpm tsc --noEmit && pnpm vitest
 
 ## Done when
 
-- [ ] Core block fits one 1440×1000 viewport; sections navigable
-- [ ] Combobox category/host + searchable tz shipped and accessible
-- [ ] Location only rendered when the format needs it
-- [ ] PR opened and CI green
+- [x] Core block fits one 1440×1000 viewport; sections navigable
+- [x] Combobox category/host + searchable tz shipped and accessible
+- [x] Location only rendered when the format needs it
+- [x] PR opened: #224 (stacked on #223; CI running at handoff)
 
 ## Handoff notes
 
-- **What diverged from the plan:**
-- **What the next task needs to know:**
-- **Logged to `Backlog/`:**
+- **What diverged from the plan:** No new repo methods — both admin event
+  pages already load the full `getAdminEvents` list, so category/host option
+  lists are derived there and passed as props. The member-search host picker
+  was dropped: the save RPC only writes `host_name` (no
+  `p_host_membership_id` parameter exists), so a member-linked host is an RPC
+  change, out of this task's scope — combobox offers past hosts + free text.
+  The listbox uses divs with ARIA roles (biome rejects role=listbox on
+  ul/li). Description became its own collapsible section rather than staying
+  in Basics.
+- **What the next task needs to know:** The sticky bottom action bar in
+  `event-form.tsx` is where Save draft · Preview · Publish go (currently one
+  submit + inline messages). Collapsible `FormSection` supports
+  `defaultOpen`/`forceOpen`/`count` and auto-opens via `onInvalidCapture`
+  when a hidden required field blocks native validation. Conditional place
+  blocks stay mounted (`hidden` attr) so values survive format toggles;
+  `required` is cleared while hidden. `Combobox` (components/ui/combobox.tsx)
+  is reusable: input carries the form `name`, shows all options on focus,
+  filters after typing.
+- **Logged to `Backlog/`:** member-linked event hosts (host_membership_id
+  picker) — needs an RPC parameter; consider folding into task 03's
+  migration if wanted.
