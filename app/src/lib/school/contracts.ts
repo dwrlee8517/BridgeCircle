@@ -14,7 +14,6 @@ export type SchoolEventCard = {
   summary: string | null
   format: SchoolEventFormat
   timeZone: string
-  campus: 'palos_verdes' | 'songdo' | 'other' | 'online'
   startsAt: string
   endsAt: string | null
   locationName: string | null
@@ -135,7 +134,6 @@ export type AdminSchoolEvent = {
   category: string
   format: SchoolEventFormat
   timeZone: string
-  campus: 'palos_verdes' | 'songdo' | 'other' | 'online'
   location: string | null
   locationAddress: string | null
   mapsUrl: string | null
@@ -167,9 +165,8 @@ export type SaveAdminSchoolEventInput = {
   category: string
   format: SchoolEventFormat
   timeZone: string
-  campus: AdminSchoolEvent['campus']
   startsAt: string
-  endsAt: string
+  endsAt: string | null
   locationName: string | null
   locationAddress: string | null
   mapsUrl: string | null

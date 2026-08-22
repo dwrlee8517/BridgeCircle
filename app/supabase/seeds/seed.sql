@@ -561,7 +561,7 @@ insert into public.conversations (
 
 insert into public.events (
   id, organization_id, created_by_membership_id, status, slug, category, title,
-  summary, description, format, time_zone, campus, location, location_name,
+  summary, description, format, time_zone, location, location_name,
   location_address, maps_url, join_url, host_name, starts_at, ends_at, capacity,
   published_at, cancelled_at, cancellation_note, changed_at, change_note
 ) values (
@@ -572,7 +572,7 @@ insert into public.events (
   'summer-gathering', 'Social', 'Summer gathering on the Main Court Patio',
   'An easy evening on the patio — name tags, snacks, and no program.',
   E'No agenda and no speeches. Come as you are, find a name tag, and let the patio do the work.\n\nFirst time back in a while? These gatherings skew friendly and people rarely stay inside their class year.',
-  'in_person', 'America/Los_Angeles', 'palos_verdes', 'Main Court Patio',
+  'in_person', 'America/Los_Angeles', 'Main Court Patio',
   'Main Court Patio', '26800 S Academy Dr, Palos Verdes Peninsula, CA',
   'https://maps.google.com/?q=Chadwick+School+Palos+Verdes', null,
   'the Alumni Office',
@@ -587,7 +587,7 @@ insert into public.events (
   'founders-dinner', 'Dinner', 'Founders Dinner at The Riviera',
   'A small dinner for alumni building companies and teams.',
   'A seated dinner with a short welcome, then an unhurried conversation across the table.',
-  'in_person', 'America/Los_Angeles', 'palos_verdes', 'The Riviera Country Club',
+  'in_person', 'America/Los_Angeles', 'The Riviera Country Club',
   'The Riviera Country Club', '1250 Capri Dr, Pacific Palisades, CA',
   'https://maps.google.com/?q=The+Riviera+Country+Club', null,
   'Amy and the Alumni Board',
@@ -601,7 +601,7 @@ insert into public.events (
   'seoul-office-hours', 'Conversation', 'Seoul alumni office hours',
   'A short online room for anyone moving between Korea and the US.',
   'Drop in with a question or just listen. The room opens one hour before the start.',
-  'online', 'Asia/Seoul', 'online', null, null, null, null,
+  'online', 'Asia/Seoul', null, null, null, null,
   'https://meet.example.com/chadwick-office-hours', 'Mei Park',
   now() + interval '30 minutes', now() + interval '2 hours',
   null, now(), null, null, now() - interval '1 day',
@@ -614,7 +614,7 @@ insert into public.events (
   'campus-walk', 'Campus', 'A walk through the new campus spaces',
   'A quiet return to campus with the facilities team.',
   'The visit was cancelled because construction access changed.',
-  'in_person', 'America/Los_Angeles', 'palos_verdes', 'Chadwick School',
+  'in_person', 'America/Los_Angeles', 'Chadwick School',
   'Chadwick School', null, null, null, 'the Alumni Office',
   now() + interval '10 days', now() + interval '10 days 90 minutes',
   30, now() - interval '10 days', now() - interval '2 days',
@@ -627,7 +627,7 @@ insert into public.events (
   'spring-career-panel', 'Panel', 'Spring career panel',
   'Alumni shared practical lessons from their first five years after Chadwick.',
   'A completed event retained as a calm record for members who attended.',
-  'in_person', 'America/Los_Angeles', 'palos_verdes', 'Laverty Center',
+  'in_person', 'America/Los_Angeles', 'Laverty Center',
   'Laverty Center', null, null, null, 'the Alumni Office',
   now() - interval '20 days', now() - interval '20 days' + interval '2 hours',
   80, now() - interval '60 days', null, null, null, null
@@ -992,18 +992,18 @@ insert into public.invites (
 -- the draft state the fixture never carried.
 insert into public.events (
   id, organization_id, created_by_membership_id, status, slug, category, title,
-  summary, description, format, time_zone, campus, location, location_name,
+  summary, description, format, time_zone, location, location_name,
   location_address, maps_url, join_url, host_name, starts_at, ends_at, capacity,
   published_at, cancelled_at, cancellation_note, changed_at, change_note
 ) values
-  ('eeee0000-0000-4000-8000-000000000006', '22222222-2222-4222-8222-222222222222', '20000000-0000-4000-8000-000000000009', 'published', 'songdo-homecoming', 'Reunion', 'Homecoming weekend on the Songdo campus', 'Two days back on campus for every class since the first.', E'The campus opens for the weekend with tours, a shared lunch, and time in the buildings that changed since you left.\n\nFamilies are welcome. Most people come for part of it rather than all of it.', 'in_person', 'Asia/Seoul', 'songdo', 'Chadwick International', 'Chadwick International', '45 Art center-daero, Yeonsu-gu, Incheon', 'https://maps.google.com/?q=Chadwick+International+Songdo', null, 'the Alumni Office', now() + interval '60 days', now() + interval '61 days', 200, now() - interval '5 days', null, null, null, null),
-  ('eeee0000-0000-4000-8000-000000000007', '22222222-2222-4222-8222-222222222222', '20000000-0000-4000-8000-000000000009', 'published', 'new-york-dinner', 'Dinner', 'New York alumni dinner', 'A long table for the East Coast contingent.', 'One table, one room, and enough time to actually talk. The chapter has grown enough that this now fills up.', 'in_person', 'America/New_York', 'other', 'Bar Sixty', 'Bar Sixty', '60 Prince St, New York, NY', 'https://maps.google.com/?q=Prince+St+New+York', null, 'Sofia Alvarez', now() + interval '21 days', now() + interval '21 days 3 hours', 2, now() - interval '9 days', null, null, null, null),
-  ('eeee0000-0000-4000-8000-000000000008', '22222222-2222-4222-8222-222222222222', '20000000-0000-4000-8000-000000000009', 'published', 'london-coffee', 'Social', 'London coffee morning', 'An informal Saturday morning for the UK and Europe group.', 'No programme. Someone brings a table number and the rest sorts itself out.', 'in_person', 'Europe/London', 'other', 'Rosemary Lane Coffee', 'Rosemary Lane Coffee', '18 Rosemary Ln, London', 'https://maps.google.com/?q=Rosemary+Lane+London', null, 'Daniel Okafor', now() + interval '14 days', now() + interval '14 days 2 hours', null, now() - interval '12 days', null, null, null, null),
-  ('eeee0000-0000-4000-8000-000000000009', '22222222-2222-4222-8222-222222222222', '20000000-0000-4000-8000-000000000009', 'published', 'global-town-hall', 'Conversation', 'Global town hall', 'One online hour scheduled so Asia, Europe, and the US can all make it.', 'A short update from the school, then questions. The recording goes out afterwards for whoever could not make the hour work.', 'online', 'Asia/Seoul', 'online', null, null, null, null, 'https://meet.example.com/chadwick-international-town-hall', 'Nadia Haddad', now() + interval '7 days', now() + interval '7 days 1 hour', null, now() - interval '14 days', null, null, null, null),
+  ('eeee0000-0000-4000-8000-000000000006', '22222222-2222-4222-8222-222222222222', '20000000-0000-4000-8000-000000000009', 'published', 'songdo-homecoming', 'Reunion', 'Homecoming weekend on the Songdo campus', 'Two days back on campus for every class since the first.', E'The campus opens for the weekend with tours, a shared lunch, and time in the buildings that changed since you left.\n\nFamilies are welcome. Most people come for part of it rather than all of it.', 'in_person', 'Asia/Seoul', 'Chadwick International', 'Chadwick International', '45 Art center-daero, Yeonsu-gu, Incheon', 'https://maps.google.com/?q=Chadwick+International+Songdo', null, 'the Alumni Office', now() + interval '60 days', now() + interval '61 days', 200, now() - interval '5 days', null, null, null, null),
+  ('eeee0000-0000-4000-8000-000000000007', '22222222-2222-4222-8222-222222222222', '20000000-0000-4000-8000-000000000009', 'published', 'new-york-dinner', 'Dinner', 'New York alumni dinner', 'A long table for the East Coast contingent.', 'One table, one room, and enough time to actually talk. The chapter has grown enough that this now fills up.', 'in_person', 'America/New_York', 'Bar Sixty', 'Bar Sixty', '60 Prince St, New York, NY', 'https://maps.google.com/?q=Prince+St+New+York', null, 'Sofia Alvarez', now() + interval '21 days', now() + interval '21 days 3 hours', 2, now() - interval '9 days', null, null, null, null),
+  ('eeee0000-0000-4000-8000-000000000008', '22222222-2222-4222-8222-222222222222', '20000000-0000-4000-8000-000000000009', 'published', 'london-coffee', 'Social', 'London coffee morning', 'An informal Saturday morning for the UK and Europe group.', 'No programme. Someone brings a table number and the rest sorts itself out.', 'in_person', 'Europe/London', 'Rosemary Lane Coffee', 'Rosemary Lane Coffee', '18 Rosemary Ln, London', 'https://maps.google.com/?q=Rosemary+Lane+London', null, 'Daniel Okafor', now() + interval '14 days', now() + interval '14 days 2 hours', null, now() - interval '12 days', null, null, null, null),
+  ('eeee0000-0000-4000-8000-000000000009', '22222222-2222-4222-8222-222222222222', '20000000-0000-4000-8000-000000000009', 'published', 'global-town-hall', 'Conversation', 'Global town hall', 'One online hour scheduled so Asia, Europe, and the US can all make it.', 'A short update from the school, then questions. The recording goes out afterwards for whoever could not make the hour work.', 'online', 'Asia/Seoul', null, null, null, null, 'https://meet.example.com/chadwick-international-town-hall', 'Nadia Haddad', now() + interval '7 days', now() + interval '7 days 1 hour', null, now() - interval '14 days', null, null, null, null),
   -- A draft still being planned. Note that the schema forces a venue even on a
   -- draft: events_format_location_check requires location_name for in_person,
   -- so "date and venue not chosen yet" is not actually representable.
-  ('eeee0000-0000-4000-8000-000000000010', '22222222-2222-4222-8222-222222222222', '20000000-0000-4000-8000-000000000009', 'draft', 'singapore-meetup', 'Social', 'Singapore meetup', 'Being planned for the Southeast Asia group.', 'Still choosing between two dates. Not visible to members until it is published.', 'in_person', 'Asia/Singapore', 'other', 'Venue to be confirmed', 'Venue to be confirmed', null, null, null, 'Wei Zhang', now() + interval '75 days', now() + interval '75 days 3 hours', 30, null, null, null, null, null);
+  ('eeee0000-0000-4000-8000-000000000010', '22222222-2222-4222-8222-222222222222', '20000000-0000-4000-8000-000000000009', 'draft', 'singapore-meetup', 'Social', 'Singapore meetup', 'Being planned for the Southeast Asia group.', 'Still choosing between two dates. Not visible to members until it is published.', 'in_person', 'Asia/Singapore', 'Venue to be confirmed', 'Venue to be confirmed', null, null, null, 'Wei Zhang', now() + interval '75 days', now() + interval '75 days 3 hours', 30, null, null, null, null, null);
 
 -- All four RSVP states. The New York dinner seats two and already has one
 -- confirmed guest, so a waitlist and a live held offer are the realistic shape.

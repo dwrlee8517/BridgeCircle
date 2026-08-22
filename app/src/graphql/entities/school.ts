@@ -44,10 +44,6 @@ const RsvpStatusEnum = builder.enumType('SchoolRsvpStatus', {
   values: ['NONE', 'GOING', 'WAITLISTED', 'OFFERED', 'NOT_GOING'] as const,
 })
 
-const CampusEnum = builder.enumType('SchoolCampus', {
-  values: ['PALOS_VERDES', 'SONGDO', 'OTHER', 'ONLINE'] as const,
-})
-
 const AnnouncementTagEnum = builder.enumType('SchoolAnnouncementTag', {
   values: ['MENTORSHIP', 'HIRING', 'REUNION', 'GENERAL'] as const,
 })
@@ -101,11 +97,6 @@ function eventCardFields(t: CardFieldBuilder) {
       resolve: (e: SchoolEventCard) => upper(e.format),
     }),
     timeZone: t.exposeString('timeZone', { nullable: false }),
-    campus: t.field({
-      type: CampusEnum,
-      nullable: false,
-      resolve: (e: SchoolEventCard) => upper(e.campus),
-    }),
     startsAt: t.exposeString('startsAt', { nullable: false }),
     endsAt: t.exposeString('endsAt', { nullable: true }),
     locationName: t.exposeString('locationName', { nullable: true }),

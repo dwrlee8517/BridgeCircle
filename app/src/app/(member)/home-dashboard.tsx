@@ -403,7 +403,7 @@ function SchoolRail({ school }: { school: SchoolHome }) {
             <span className="min-w-0 flex-1">
               <span className="block truncate text-caption font-bold">{event.title}</span>
               <span className="mt-0.5 block truncate text-xs font-medium text-muted-foreground">
-                {event.locationName ?? (event.format === 'online' ? 'Online' : event.campus)}
+                {event.locationName ?? (event.format === 'online' ? 'Online' : 'In person')}
               </span>
             </span>
             {event.viewerRsvp === 'going' ? (

@@ -23,14 +23,14 @@ cleanup
 "${psql_base[@]}" <<SQL
 insert into public.events (
   id, organization_id, created_by_membership_id, status, slug, category,
-  title, summary, description, format, time_zone, campus, location,
+  title, summary, description, format, time_zone, location,
   location_name, host_name, starts_at, ends_at, capacity, published_at
 ) values (
   '$event_id', '$organization_id',
   '20000000-0000-4000-8000-000000000001', 'published',
   'school-maintenance-fixture', 'Test', 'School maintenance fixture',
   'A disposable offer-expiry event.', 'A disposable offer-expiry event.',
-  'in_person', 'America/Los_Angeles', 'palos_verdes', 'Main Court Patio',
+  'in_person', 'America/Los_Angeles', 'Main Court Patio',
   'Main Court Patio', 'the Alumni Office', now() + interval '30 days',
   now() + interval '30 days 2 hours', 1, now()
 );

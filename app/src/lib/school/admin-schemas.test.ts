@@ -9,7 +9,6 @@ function validForm() {
   form.set('category', 'Community')
   form.set('format', 'hybrid')
   form.set('timeZone', 'Asia/Seoul')
-  form.set('campus', 'songdo')
   form.set('startsAt', '2026-08-20T18:30')
   form.set('endsAt', '2026-08-20T20:30')
   form.set('locationName', 'Chadwick International')
@@ -71,6 +70,15 @@ describe('admin event form', () => {
     const paths = parsed.error.issues.map((issue) => issue.path.join('.'))
     expect(paths).toContain('allowWaitlist')
     expect(paths).toContain('facts.0.linkLabel')
+  })
+
+  it('accepts a missing end time', () => {
+    const form = validForm()
+    form.delete('endsAt')
+    const parsed = parseAdminEventForm(form)
+    expect(parsed.success).toBe(true)
+    if (!parsed.success) return
+    expect(parsed.data.endsAt).toBeNull()
   })
 
   it('rejects an end time before the start time', () => {

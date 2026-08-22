@@ -8,7 +8,7 @@ import { FieldError, FormMessage } from '@/components/ui/form-message'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import type { AdminSchoolEvent, SchoolEventFormat } from '@/lib/school/contracts'
+import type { SchoolEventFormat } from '@/lib/school/contracts'
 import { createEventAction, type EventCreateFormState } from './actions'
 
 const initialState: EventCreateFormState = {}
@@ -38,7 +38,6 @@ export type EventFormDefaults = {
   category: string
   format: SchoolEventFormat
   timeZone: string
-  campus: AdminSchoolEvent['campus']
   startsAtLocal: string
   endsAtLocal: string
   locationName: string
@@ -61,7 +60,6 @@ const EMPTY_DEFAULTS: EventFormDefaults = {
   category: 'Community',
   format: 'in_person',
   timeZone: 'America/Los_Angeles',
-  campus: 'palos_verdes',
   startsAtLocal: '',
   endsAtLocal: '',
   locationName: '',
@@ -222,7 +220,7 @@ export function EventForm({
         title="Time and place"
         description="Times are interpreted in the event time zone, wherever you are editing from."
       >
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2">
           <Field id="format" label="Format" error={fe.format} required>
             <select
               id="format"
@@ -236,21 +234,6 @@ export function EventForm({
               <option value="in_person">In person</option>
               <option value="online">Online</option>
               <option value="hybrid">Hybrid</option>
-            </select>
-          </Field>
-          <Field id="campus" label="Campus" error={fe.campus} required>
-            <select
-              id="campus"
-              name="campus"
-              defaultValue={defaults.campus}
-              className="h-10 w-full rounded-[var(--radius-standard)] border border-input bg-surface-card px-3 text-sm outline-none focus-visible:border-focus-ring focus-visible:ring-4 focus-visible:ring-focus-ring-soft"
-              aria-invalid={fe.campus ? true : undefined}
-              aria-describedby={fe.campus ? 'campus-error' : undefined}
-            >
-              <option value="palos_verdes">Palos Verdes</option>
-              <option value="songdo">Songdo</option>
-              <option value="online">Online</option>
-              <option value="other">Other</option>
             </select>
           </Field>
           <Field id="timeZone" label="Time zone" error={fe.timeZone} required>
@@ -286,12 +269,11 @@ export function EventForm({
               aria-describedby={fe.startsAt ? 'startsAt-error' : undefined}
             />
           </Field>
-          <Field id="endsAt" label="End" error={fe.endsAt} required>
+          <Field id="endsAt" label="End" error={fe.endsAt} hint="Optional">
             <Input
               id="endsAt"
               name="endsAt"
               type="datetime-local"
-              required
               defaultValue={defaults.endsAtLocal}
               aria-invalid={fe.endsAt ? true : undefined}
               aria-describedby={fe.endsAt ? 'endsAt-error' : undefined}

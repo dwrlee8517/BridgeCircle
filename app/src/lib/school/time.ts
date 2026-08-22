@@ -1,12 +1,5 @@
 import type { SchoolEventCard } from './contracts'
 
-const campusNames: Record<SchoolEventCard['campus'], string> = {
-  palos_verdes: 'Palos Verdes',
-  songdo: 'Songdo',
-  other: 'Campus',
-  online: 'Event',
-}
-
 export function formatEventDate(iso: string, timeZone: string, locale = 'en-US') {
   return new Intl.DateTimeFormat(locale, {
     timeZone,
@@ -42,8 +35,8 @@ export function formatEventTimeRange(
   return `${start} – ${end}`
 }
 
-export function campusTimeLabel(event: Pick<SchoolEventCard, 'campus' | 'timeZone'>) {
-  return `${campusNames[event.campus]} time · ${event.timeZone}`
+export function eventTimeZoneLabel(timeZone: string) {
+  return `Event time · ${timeZone}`
 }
 
 export function eventCalendarFilename(title: string) {
