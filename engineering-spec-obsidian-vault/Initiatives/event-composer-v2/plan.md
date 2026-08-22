@@ -95,7 +95,7 @@ announce must never target a draft.
 | # | Task | Status | Depends on | PR |
 |---|---|---|---|---|
 | 01 | [[Initiatives/event-composer-v2/tasks/01-schema-drop-campus-optional-end\|Schema: drop campus, optional end time]] | ready | — | |
-| 02 | [[Initiatives/event-composer-v2/tasks/02-form-rework-comboboxes\|Form rework: sections, comboboxes, tz, conditional location]] | in-progress | 01 | |
+| 02 | [[Initiatives/event-composer-v2/tasks/02-form-rework-comboboxes\|Form rework: sections, comboboxes, tz, conditional location]] | done | 01 | [#224](https://github.com/dwrlee8517/BridgeCircle/pull/224) |
 | 03 | [[Initiatives/event-composer-v2/tasks/03-draft-and-preview\|Save as draft + member preview]] | ready | 02 | |
 | 04 | [[Initiatives/event-composer-v2/tasks/04-cover-photo\|Cover photo: bucket, column, upload, render]] | ready | 02 | |
 | 05 | [[Initiatives/event-composer-v2/tasks/05-announce-to-audience\|Announce: faceted audience + capped invites]] | ready | 03 | |

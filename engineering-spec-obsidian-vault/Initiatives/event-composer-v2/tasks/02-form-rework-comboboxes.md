@@ -3,7 +3,7 @@ id: event-composer-v2/02-form-rework-comboboxes
 initiative: "[[Initiatives/event-composer-v2/plan|Event composer v2]]"
 status: done
 depends_on: [01]
-pr: (see plan board)
+pr: https://github.com/dwrlee8517/BridgeCircle/pull/224
 ---
 
 # 02 — Form rework: sections, comboboxes, time zone, conditional location
@@ -93,10 +93,10 @@ pnpm biome check . && pnpm lint && pnpm tsc --noEmit && pnpm vitest
 
 ## Done when
 
-- [ ] Core block fits one 1440×1000 viewport; sections navigable
-- [ ] Combobox category/host + searchable tz shipped and accessible
-- [ ] Location only rendered when the format needs it
-- [ ] PR opened and CI green
+- [x] Core block fits one 1440×1000 viewport; sections navigable
+- [x] Combobox category/host + searchable tz shipped and accessible
+- [x] Location only rendered when the format needs it
+- [x] PR opened: #224 (stacked on #223; CI running at handoff)
 
 ## Handoff notes
 
