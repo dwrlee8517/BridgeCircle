@@ -16,6 +16,12 @@ export default async function EditEventPage({ params }: { params: Promise<Params
   const events = await createSchoolRepository(client).getAdminEvents(membership.membershipId)
   const event = events?.find((candidate) => candidate.id === id)
   if (!event) notFound()
+  const categoryOptions = [...new Set((events ?? []).map((candidate) => candidate.category))]
+  const hostOptions = [
+    ...new Set(
+      (events ?? []).flatMap((candidate) => (candidate.hostName ? [candidate.hostName] : [])),
+    ),
+  ]
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 space-y-4">
@@ -38,6 +44,8 @@ export default async function EditEventPage({ params }: { params: Promise<Params
             preserveOnSuccess
             submitLabel="Save changes"
             hiddenFields={{ eventId: event.id }}
+            categoryOptions={categoryOptions}
+            hostOptions={hostOptions}
             defaults={{
               title: event.title,
               summary: event.summary ?? '',
