@@ -80,9 +80,8 @@ const rawAdminEventSchema = z
       .min(1, 'Time zone is required.')
       .regex(DATABASE_TIME_ZONE, 'Choose a named regional time zone.')
       .refine(isValidTimeZone, 'Choose a valid time zone.'),
-    campus: z.enum(['palos_verdes', 'songdo', 'other', 'online']),
     startsAt: z.string().min(1, 'Start time is required.'),
-    endsAt: z.string().min(1, 'End time is required.'),
+    endsAt: z.string(),
     locationName: optionalText(300),
     locationAddress: optionalText(1_000),
     mapsUrl: optionalHttpsUrl('Maps link'),
@@ -108,7 +107,7 @@ const rawAdminEventSchema = z
   })
   .superRefine((value, context) => {
     const startsAt = localDateTimeToIso(value.startsAt, value.timeZone)
-    const endsAt = localDateTimeToIso(value.endsAt, value.timeZone)
+    const endsAt = value.endsAt ? localDateTimeToIso(value.endsAt, value.timeZone) : null
     if (!startsAt) {
       context.addIssue({
         code: 'custom',
@@ -116,7 +115,7 @@ const rawAdminEventSchema = z
         message: 'Choose a valid start time in this time zone.',
       })
     }
-    if (!endsAt) {
+    if (value.endsAt && !endsAt) {
       context.addIssue({
         code: 'custom',
         path: ['endsAt'],
@@ -166,7 +165,7 @@ const rawAdminEventSchema = z
   .transform((value) => ({
     ...value,
     startsAt: localDateTimeToIso(value.startsAt, value.timeZone) as string,
-    endsAt: localDateTimeToIso(value.endsAt, value.timeZone) as string,
+    endsAt: value.endsAt ? (localDateTimeToIso(value.endsAt, value.timeZone) as string) : null,
     schedule: value.schedule.map((item) => ({
       label: item.label,
       startsAt: item.startsAt
@@ -208,7 +207,6 @@ export function parseAdminEventForm(formData: FormData) {
     category: formString(formData.get('category')),
     format: formString(formData.get('format')),
     timeZone: formString(formData.get('timeZone')),
-    campus: formString(formData.get('campus')),
     startsAt: formString(formData.get('startsAt')),
     endsAt: formString(formData.get('endsAt')),
     locationName: formString(formData.get('locationName')),

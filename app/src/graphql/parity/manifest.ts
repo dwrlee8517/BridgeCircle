@@ -374,13 +374,13 @@ export const PARITY_MANIFEST: ParityOperation[] = [
       argsNote: 'membershipId = getMemberContext(db) selected membership; getHome(membershipId).',
     },
     shapeNotes:
-      'Whole-object diff: events/announcements are bounded whole lists (no cursors in the school repo — plain arrays, same honest-modeling call as peopleSearch). Enums uppercased: phase, format, campus, viewerRsvp, tag. null when unauthenticated / no membership.',
+      'Whole-object diff: events/announcements are bounded whole lists (no cursors in the school repo — plain arrays, same honest-modeling call as peopleSearch). Enums uppercased: phase, format, viewerRsvp, tag. null when unauthenticated / no membership.',
   },
   {
     feature: 'school',
     kind: 'query',
     name: 'schoolEvent',
-    document: `query ($id: ID!) { schoolEvent(id: $id) { id slug phase title format campus startsAt endsAt viewerRsvp offerExpiresAt spotsLeft allowWaitlist description locationAddress mapsUrl hostUserId schedule { id position startsAt label } facts { id position label value linkLabel linkUrl } } }`,
+    document: `query ($id: ID!) { schoolEvent(id: $id) { id slug phase title format startsAt endsAt viewerRsvp offerExpiresAt spotsLeft allowWaitlist description locationAddress mapsUrl hostUserId schedule { id position startsAt label } facts { id position label value linkLabel linkUrl } } }`,
     variables: { id: '<event-id>' },
     lib: {
       module: '@/db/repositories/school',

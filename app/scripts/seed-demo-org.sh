@@ -168,14 +168,14 @@ delete from public.events where id in (
 
 insert into public.events (
   id, organization_id, created_by_membership_id, host_membership_id, status,
-  title, slug, category, summary, description, format, time_zone, campus,
+  title, slug, category, summary, description, format, time_zone,
   location_name, join_url, starts_at, ends_at, capacity, published_at
 ) values (
   '99999999-5555-4000-8000-000000000001', :'org_id', :'membership_id', :'membership_id', 'published',
   'Seoul alumni dinner', 'seoul-alumni-dinner', 'Social',
   'An easy dinner for anyone in or near Seoul.',
   'An easy dinner for anyone in or near Seoul. Come as you are — new faces welcome, and bring a classmate if you can.',
-  'in_person', 'Asia/Seoul', 'other', 'Seongsu-dong, Seoul',
+  'in_person', 'Asia/Seoul', 'Seongsu-dong, Seoul',
   null,
   date_trunc('hour', now()) + interval '12 days' + interval '19 hours',
   date_trunc('hour', now()) + interval '12 days' + interval '21 hours',
@@ -186,7 +186,7 @@ insert into public.events (
   'Class of 2016 ten-year reunion planning call', 'class-of-2016-reunion-call', 'Reunion',
   'Twenty minutes to pick a date and split the work.',
   'A short call to pick a date and split the work. Twenty minutes, then back to your evening.',
-  'online', 'Asia/Seoul', 'online', null,
+  'online', 'Asia/Seoul', null,
   'https://meet.example.com/harborview-2016',
   date_trunc('hour', now()) + interval '26 days' + interval '20 hours',
   date_trunc('hour', now()) + interval '26 days' + interval '20 hours 30 minutes',

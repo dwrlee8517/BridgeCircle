@@ -13,7 +13,6 @@ const fields = {
   category: 'Community',
   format: 'in_person' as const,
   timeZone: 'America/Los_Angeles',
-  campus: 'palos_verdes' as const,
   startsAt: '2026-08-01T01:00:00.000Z',
   endsAt: '2026-08-01T03:00:00.000Z',
   locationName: 'Roessler Hall',

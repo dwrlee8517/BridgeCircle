@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from 'react'
 import type { SchoolEventCard } from '@/lib/school/contracts'
-import { campusTimeLabel, formatEventDate, formatEventTimeRange } from '@/lib/school/time'
+import { eventTimeZoneLabel, formatEventDate, formatEventTimeRange } from '@/lib/school/time'
 
 export function EventTime({ event }: { event: SchoolEventCard }) {
   const localZone = useSyncExternalStore(
@@ -12,18 +12,18 @@ export function EventTime({ event }: { event: SchoolEventCard }) {
   )
 
   const local = `${formatEventDate(event.startsAt, localZone)} · ${formatEventTimeRange(event.startsAt, event.endsAt, localZone)}`
-  const campus = `${formatEventDate(event.startsAt, event.timeZone)} · ${formatEventTimeRange(event.startsAt, event.endsAt, event.timeZone)}`
+  const eventZone = `${formatEventDate(event.startsAt, event.timeZone)} · ${formatEventTimeRange(event.startsAt, event.endsAt, event.timeZone)}`
 
   return (
     <span className="block">
       <span className="block">{local}</span>
       {localZone !== event.timeZone ? (
         <span className="mt-0.5 block text-fine font-medium text-surface-editorial-muted">
-          {campus} · {campusTimeLabel(event)}
+          {eventZone} · {eventTimeZoneLabel(event.timeZone)}
         </span>
       ) : (
         <span className="mt-0.5 block text-fine font-medium text-surface-editorial-muted">
-          {campusTimeLabel(event)}
+          {eventTimeZoneLabel(event.timeZone)}
         </span>
       )}
     </span>

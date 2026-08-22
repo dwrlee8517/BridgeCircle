@@ -1001,22 +1001,9 @@ export type Database = {
           opened_offers: number
         }[]
       }
-      save_admin_school_event: {
-        Args: {
-          p_capacity?: number
-          p_description?: string
-          p_event_id?: string
-          p_location?: string
-          p_membership_id: string
-          p_starts_at?: string
-          p_title?: string
-        }
-        Returns: Json
-      }
       save_admin_school_event_v2: {
         Args: {
           p_allow_waitlist?: boolean
-          p_campus?: string
           p_capacity?: number
           p_category?: string
           p_change_note?: string
@@ -2020,7 +2007,6 @@ export type Database = {
       events: {
         Row: {
           allow_waitlist: boolean
-          campus: string
           cancellation_note: string | null
           cancelled_at: string | null
           capacity: number | null
@@ -2053,7 +2039,6 @@ export type Database = {
         }
         Insert: {
           allow_waitlist?: boolean
-          campus?: string
           cancellation_note?: string | null
           cancelled_at?: string | null
           capacity?: number | null
@@ -2086,7 +2071,6 @@ export type Database = {
         }
         Update: {
           allow_waitlist?: boolean
-          campus?: string
           cancellation_note?: string | null
           cancelled_at?: string | null
           capacity?: number | null

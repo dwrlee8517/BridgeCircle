@@ -31,7 +31,7 @@ begin;
 
 insert into public.events (
   id, organization_id, created_by_membership_id, status, slug, category,
-  title, summary, description, format, time_zone, campus, location,
+  title, summary, description, format, time_zone, location,
   location_name, host_name, starts_at, ends_at, capacity, published_at
 )
 select
@@ -41,7 +41,7 @@ select
   'published', 'school-plan-' || fixture, 'Plan',
   'School plan event ' || fixture, 'Representative School event',
   'Representative School event', 'in_person', 'America/Los_Angeles',
-  'palos_verdes', 'Main Court Patio', 'Main Court Patio', 'the Alumni Office',
+  'Main Court Patio', 'Main Court Patio', 'the Alumni Office',
   now() + fixture * interval '1 hour', now() + fixture * interval '1 hour' + interval '2 hours',
   50, now()
 from generate_series(1, 1200) fixture;

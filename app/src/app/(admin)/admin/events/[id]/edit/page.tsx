@@ -45,7 +45,6 @@ export default async function EditEventPage({ params }: { params: Promise<Params
               category: event.category,
               format: event.format,
               timeZone: event.timeZone,
-              campus: event.campus,
               startsAtLocal: isoToLocalDateTime(event.startsAt, event.timeZone),
               endsAtLocal: event.endsAt ? isoToLocalDateTime(event.endsAt, event.timeZone) : '',
               locationName: event.location ?? '',

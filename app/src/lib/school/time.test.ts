@@ -1,24 +1,22 @@
 import { describe, expect, it } from 'vitest'
 import {
   buildSchoolEventCalendar,
-  campusTimeLabel,
   eventCalendarFilename,
+  eventTimeZoneLabel,
   formatEventDate,
   formatEventTimeRange,
 } from './time'
 
 describe('School time and calendar formatting', () => {
-  it('formats the same instant in the requested campus time zone', () => {
+  it('formats the same instant in the requested event time zone', () => {
     const instant = '2026-07-16T01:30:00.000Z'
     expect(formatEventDate(instant, 'America/Los_Angeles')).toBe('Wed, Jul 15')
     expect(formatEventDate(instant, 'Asia/Seoul')).toBe('Thu, Jul 16')
     expect(formatEventTimeRange(instant, null, 'America/Los_Angeles')).toContain('6:30 PM')
   })
 
-  it('labels campus time without guessing from the viewer browser', () => {
-    expect(campusTimeLabel({ campus: 'songdo', timeZone: 'Asia/Seoul' })).toBe(
-      'Songdo time · Asia/Seoul',
-    )
+  it('labels event time without guessing from the viewer browser', () => {
+    expect(eventTimeZoneLabel('Asia/Seoul')).toBe('Event time · Asia/Seoul')
   })
 
   it('creates stable safe calendar filenames', () => {
